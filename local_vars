@@ -1,8 +1,15 @@
 #!/bin/bash
 
 # DigitalOcean Personal Acccess Token
+# (Used in ./scripts/*.sh)
 export TF_VAR_digitalocean_api_token=YOUR-TOKEN
 
+
+
+
+# ===============================================================================
+# All below variables are not used in scripts and exists only for demo purpose!!!
+# ===============================================================================
 export TF_VAR_region=nyc3
 
 # Which ssh public key is used for passwordless ssh access
