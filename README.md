@@ -12,3 +12,10 @@ So, the solution is very obvious and simple - create tags via external script us
 The disadvantage of this approach - you need to delete unused tags manually.
 
 I commented important lines with "!!!".
+
+
+## Requirements
+
+- jq
+- curl
+- terraform
