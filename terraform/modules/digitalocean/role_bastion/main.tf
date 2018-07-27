@@ -99,6 +99,41 @@ resource "digitalocean_droplet" "bastion" {
 
     # !!! Instead of "digitalocean_tag.bastion.*.id" use the following:
     tags               = ["${module.droplet_tags.tags}"]
+
+    lifecycle {
+        # !!! Now all changes processing via "null_resource.assign_tags_to_droplet" (see below)
+        ignore_changes = ["tags"]
+    }
+}
+
+resource "null_resource" "assign_tags_to_droplet" {
+    depends_on = [
+        "digitalocean_droplet.bastion",
+        "module.droplet_tags",
+    ]
+    count      = "${var.num_nodes}"
+
+    triggers {
+        tag_ids    = "${join(",", module.droplet_tags.tags)}",
+        droplet_id = "${element(digitalocean_droplet.bastion.*.id, count.index)}",
+    }
+
+    # !!! All magic does this script. You can test it like so:
+    #
+    # To add tags, just call:
+    # $ ./scripts/assign_tags_to_droplet.sh YOUR-DROPLET-ID tag1 tag2 tag3
+    #
+    # To change tags, just call:
+    # $ ./scripts/assign_tags_to_droplet.sh YOUR-DROPLET-ID tag1
+    #
+    # To untag all assigned tags, just call:
+    # $ ./scripts/assign_tags_to_droplet.sh YOUR-DROPLET-ID
+    #
+    # One important notice: this script does NOT delete tags, it just remove Droplet from the tag
+    # (https://developers.digitalocean.com/documentation/v2/#untag-a-resource)
+    provisioner "local-exec" {
+        command = "\"${path.module}/../../../../scripts/assign_tags_to_droplet.sh\" ${element(digitalocean_droplet.bastion.*.id, count.index)} ${join(" ", module.droplet_tags.tags)}"
+    }
 }
 
 # Allow SSH access to the Bastion from the Web.
@@ -108,6 +143,7 @@ resource "digitalocean_firewall" "bastion" {
     # !!! This is very important part. Without this line Terraform raises an error.
     depends_on = [
         "module.droplet_tags",
+        "null_resource.assign_tags_to_droplet",
         "module.firewall_ssh_dest_tags",
     ]
 
