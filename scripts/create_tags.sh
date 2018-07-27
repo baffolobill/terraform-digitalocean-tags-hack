@@ -6,8 +6,6 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Actually, you can pass $TF_VAR_digitalocean_api_token value along with list of tags.
 source "$SCRIPT_DIR/../local_vars"
 
-api_url="https://api.digitalocean.com/v2/tags"
-
 function create_tag {
     local readonly tag_id="$1"
 
@@ -15,7 +13,7 @@ function create_tag {
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer $TF_VAR_digitalocean_api_token" \
         -d "{\"name\":\"$tag_id\"}" \
-        "${api_url}"
+        "https://api.digitalocean.com/v2/tags"
 }
 
 for tag in "$@"; do
