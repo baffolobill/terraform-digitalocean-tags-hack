@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# DigitalOcean Personal Acccess Token
+export TF_VAR_digitalocean_api_token=YOUR-TOKEN
+
+export TF_VAR_region=nyc3
+
+# Which ssh public key is used for passwordless ssh access
+readonly ssh_pub_key=$HOME/.ssh/<DIGITALOCEAN_PUB_KEY>.pub
+
+# getting ssh fingerprint
+ssh_fingerprint=$(ssh-keygen -E md5 -lf $ssh_pub_key | awk '{print $2}')
+# remove "md5:" from the beginning
+ssh_fingerprint_stripped=$(echo $ssh_fingerprint | cut -c 5-51)
+
+export TF_VAR_ssh_fingerprint="${ssh_fingerprint_stripped}"
